@@ -1,0 +1,97 @@
+/*
+     File        : file.H
+
+     Author      : Riccardo Bettati
+     Modified    : 2017/05/01
+
+     Description : Simple File class with sequential read/write operations.
+ 
+*/
+
+#ifndef _FILE_H_
+#define _FILE_H_
+
+/*--------------------------------------------------------------------------*/
+/* DEFINES */
+/*--------------------------------------------------------------------------*/
+
+#define SYSTEM_DISK_SIZE2 10485760
+#define BLOCKSIZE 512
+#define SYSTEM_BLOCKS SYSTEM_DISK_SIZE2/BLOCKSIZE
+
+#define HEADER_SIZE 12
+
+#define FREE    0x0000
+#define USED    0xFFFF
+#define BLOCK_DATA_SIZE 125
+
+
+/* -- (none) -- */
+
+/*--------------------------------------------------------------------------*/
+/* INCLUDES */
+/*--------------------------------------------------------------------------*/
+#include "utils.H"
+#include "simple_disk.H"
+#include "file_system.H"
+/* -- (none) -- */
+
+/*--------------------------------------------------------------------------*/
+/* DATA STRUCTURES */ 
+/*--------------------------------------------------------------------------*/
+
+/* -- (none) -- */
+
+/*--------------------------------------------------------------------------*/
+/* class  F i l e   */
+/*--------------------------------------------------------------------------*/
+class FileSystem;
+extern FileSystem* FILE_SYSTEM;
+
+class File  {
+friend class FileSystem;
+    
+private:
+    /* -- your file data structures here ... */
+    FileSystem* file_system;
+
+     unsigned int   inode_block_num;//block of file inode
+     unsigned int   file_id;
+     unsigned int   file_size; // in blocks
+     unsigned int*  block_nums;//pointers of designated file blocks, not guaranteed to be continous
+     unsigned int   cur_block; //current block position, always starts from 0
+     unsigned int   cur_position; //current position in currrent block, always starts from 0
+    
+    /* -- maybe it would be good to have a reference to the file system? */
+    
+public:
+	char res[30];
+    File();
+    File(unsigned int id);
+    /* Constructor for the file handle. Set the ’current
+     position’ to be at the beginning of the file. */
+    
+    int Read(unsigned int _n, char * _buf);
+    /* Read _n characters from the file starting at the current location and
+     copy them in _buf.  Return the number of characters read. 
+     Do not read beyond the end of the file. */
+    
+    void Write(unsigned int _n, const char * _buf);
+    /* Write _n characters to the file starting at the current location, 
+     if we run past the end of file, 
+     we increase the size of the file as needed. */
+    
+    void Reset();
+    /* Set the ’current position’ at the beginning of the file. */
+    
+    void Rewrite();
+    /* Erase the content of the file. Return any freed blocks.
+     Note: This function does not delete the file! It just erases its content. */
+    
+    bool EoF();
+    /* Is the current location for the file at the end of the file? */
+    bool GetBlock();
+
+};
+
+#endif
